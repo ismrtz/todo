@@ -1,0 +1,20 @@
+*{
+    margin: 0;
+    padding: 0;
+    line-height: 140%;
+    font-family: 'Inter';
+    box-sizing: border-box;
+}
+
+body, main{
+    height: 100vh;
+}
+
+button{
+    border:unset;
+    cursor: pointer;
+}
+
+span[class*='ri']{
+    font-size: var(--size-16);
+}
