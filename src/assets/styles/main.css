@@ -1,0 +1,243 @@
+.header{
+  height: 22%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--black);
+}
+
+.main{
+  display: flex;
+  min-height: 78vh;
+  justify-content: center;
+  background-color: var(--gray-600);
+}
+
+.todo{
+  width: 100%;
+  display: flex;
+  padding: 0 24px;
+  flex-direction: column;
+}
+
+.todo__create{
+  top: -27px;
+  display: flex;
+  position: relative;
+  gap: var(--size-8);
+  flex-direction: column;
+}
+
+.todo__detail{
+  display: flex;
+  font-size: var(--font-14);
+  margin-top: var(--size-64);
+  justify-content: space-between;
+}
+
+.todo__detail--created{
+  color: var(--blue);
+}
+
+.todo__detail--completed{
+  color: var(--purple);
+}
+
+.todo__detail-count{
+  color: var(--gray-200);
+  margin-left: var(--size-8);
+  background-color: var(--gray-400);
+  border-radius: var(--radius-round);
+  padding: var(--size-2) var(--size-8);
+}
+
+.todo__list{
+  display: flex;
+  overflow-y: auto;
+  max-height: 55vh;
+  gap: var(--size-12);
+  flex-direction: column;
+  margin-top: var(--size-24);
+}
+
+.todo__list::-webkit-scrollbar{
+  display: none;
+}
+
+.todo__list-empty{
+  display: flex;
+  gap: var(--size-16);
+  align-items: center;
+  flex-direction: column;
+  margin-top: var(--size-24);
+  padding:  var(--size-24) 0;
+  border-top: 1px solid var(--gray-500);
+}
+
+.todo__list-empty-icon{
+  color: var(--gray-400);
+  font-size: 6rem !important;
+}
+
+.todo__list-empty-text{
+  text-align: center;
+  color: var(--gray-300);
+}
+
+.todo__item{
+  display: flex;
+  cursor: pointer;
+  gap: var(--size-12);
+  padding: var(--size-16);
+  border-radius: var(--size-8);
+  background-color: var(--gray-500);
+}
+
+.todo__item:hover{
+  background-color: var(--gray-400);
+}
+
+.todo_item-title{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: var(--gray-100);
+  font-size: var(--font-14);
+}
+
+.todo__item-title--checked{
+  color: var(--gray-300);
+  text-decoration: line-through;
+}
+
+.todo__item-delete{
+  display: flex;
+  align-items: center;
+  width: var(--size-24);
+  height: var(--size-24);
+  background-color: #fff;
+  padding: var(--size-6);
+  color: var(--gray-300);
+  justify-content: center;
+  background-color: transparent;
+  border-radius: var(--size-4);
+  transition: all 0.1s ease-in;
+}
+
+.todo__item-delete:hover{
+  color: var(--danger);
+  background-color: var(--gray-500);
+}
+
+.input{
+  width: 100%;
+  border: unset;
+  color: var(--gray-100);
+  padding: var(--size-16);
+  font-size: var(--font-16);
+  border-radius: var(--size-8);
+  background-color: var(--gray-500);
+  transition: all 0.1s ease-in;
+}
+
+.input:focus{
+  outline-offset: -2px;
+  outline: var(--size-2) solid var(--purple);
+}
+
+.button{
+  display: flex;
+  gap: var(--size-8);
+  align-items: center;
+  color: var(--gray-100);
+  padding: var(--size-16);
+  justify-content: center;
+  border-radius: var(--size-8);
+  background-color:var(--blue-dark);
+  transition: background-color 0.1s ease-in;
+}
+
+.button:hover{
+  background-color: var(--blue);
+}
+
+.button-icon  {
+  font-size: var(--font-16);
+}
+
+.button__title{
+  font-weight: bold;
+  font-size: var(--font-14);
+}
+
+.checkbox{
+  display: flex;
+  align-items: center;
+  width: var(--size-24);
+  height: var(--size-24);
+  flex-direction: column;
+  justify-content: center;
+}
+
+.checkbox__input{
+  display: none;
+}
+
+.checkbox__select{
+  cursor: pointer;
+  position: relative;
+  width: var(--size-20);
+  height: var(--size-20);
+  border-radius: var(--radius-round);
+  border: var(--size-2) solid var(--blue);
+}
+
+.checkbox__select:hover{
+  border-color: var(--blue-dark);
+  background-color: rgba(30,111,159, 0.2);
+}
+
+.checkbox__select:before{
+  top: -2px;
+  left: -2px;
+  content: '✓';
+  display: none;
+  position: absolute;
+  width: var(--size-20);
+  height: var(--size-20);
+  color: var(--gray-100);
+  background-color: var(--purple);
+  border-radius: var(--radius-round);
+}
+
+.checkbox .checkbox__input:checked + .checkbox__select:before{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (min-width: 576px) {
+  .todo{
+    max-width: 736px;
+  }
+
+  .todo__create{
+    flex-direction: row;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .todo {
+    padding: 0;
+  }
+
+  .button{
+    justify-content: initial;
+  }
+
+  .todo__list-empty{
+    padding: var(--size-64) 0; 
+  }
+}
+
+
