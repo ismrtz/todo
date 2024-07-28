@@ -1,4 +1,4 @@
-import { todoInputEl, createTodoButtonEl } from "./src/scripts/domSelectors.js";
+import { todoInputEl, createTodoButtonEl } from "./domSelectors.js";
 
 const setNewTodoEnterKeyEvent = (handleNewTodo) => {
   todoInputEl.addEventListener("keydown", (event) => {
