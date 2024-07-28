@@ -1,11 +1,11 @@
-const createListEl = () => {
+const createTodoListEl = () => {
   const listEl = document.createElement("ul");
   listEl.className = "todo__list";
 
   return listEl;
 };
 
-const createEmptyListEl = () => {
+const createEmptyTodoListEl = () => {
   const emptyListEl = document.createElement("section");
   emptyListEl.className = "todo__list-empty";
   emptyListEl.innerHTML = `<span class="todo__list-empty-icon ri-draft-line"></span>
@@ -17,7 +17,7 @@ const createEmptyListEl = () => {
   return emptyListEl;
 };
 
-const createTodoItemElement = (item, onSelectItem, onDeleteItem) => {
+const createTodoItemEl = (item, onSelectItem, onDeleteItem) => {
   const deleteIconEl = document.createElement("span");
   const deleteButtonEl = document.createElement("button");
   const titleEl = document.createElement("p");
@@ -51,7 +51,7 @@ const createTodoItemElement = (item, onSelectItem, onDeleteItem) => {
   checkboxEl.append(customCheckboxInputEl);
 
   deleteButtonEl.append(deleteIconEl);
-  deleteButtonEl.addEventListener('click', onDeleteItem)
+  deleteButtonEl.addEventListener("click", onDeleteItem);
 
   labelEl.append(checkboxEl);
   labelEl.append(titleEl);
@@ -61,4 +61,4 @@ const createTodoItemElement = (item, onSelectItem, onDeleteItem) => {
   return liEl;
 };
 
-export { createListEl, createEmptyListEl, createTodoItemElement };
+export { createTodoListEl, createTodoItemEl, createEmptyTodoListEl };

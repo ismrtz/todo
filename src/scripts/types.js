@@ -1,9 +1,9 @@
-const createTodoObject = (value, todoListCount) => {
+const createTodo = (value, listCount) => {
   return {
     value,
+    id: listCount,
     checked: false,
-    id: todoListCount,
   };
 };
 
-export { createTodoObject };
+export { createTodo };

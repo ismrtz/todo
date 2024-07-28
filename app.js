@@ -1,64 +1,72 @@
-import { createTodoObject } from "./src/scripts/types.js";
+import { createTodo } from "./src/scripts/types.js";
+import { Database } from "./src/scripts/database.js";
+import { isEmpty, removeEl, updateInnerText } from "./src/scripts/helpers.js";
 import {
-  createListEl,
-  createEmptyListEl,
-  createTodoItemElement,
+  addTodo,
+  updateTodo,
+  removeTodo,
+  getTodoList,
+  setTodoList,
+} from "./src/scripts/state.js";
+import {
+  todoEl,
+  todoInputEl,
+  todoListCountEl,
+  completedTodoListCountEl,
+} from "./src/scripts/domSelectors.js";
+import {
+  createTodoListEl,
+  createTodoItemEl,
+  createEmptyTodoListEl,
 } from "./src/scripts/elements.js";
 import {
-  addTodoDB,
-  initIndexedDB,
-  getAllTodoDB,
-  deleteTodoDB,
-  updateTodoDB,
-} from "./src/scripts/indexedDB.js";
+  setNewTodoEnterKeyEvent,
+  setNewTodoButtonClickEvent,
+} from "./src/scripts/eventFunctions.js";
 
-const todoEl = document.querySelector(".todo");
-const todoInput = document.querySelector("#todo-input");
-const createTodoButton = document.querySelector("#create-todo");
-const [todoListCountEl, completedTodoListCountEl] = document.querySelectorAll(
-  ".todo__detail-count"
-);
+const DATABASE = {
+  version: 1,
+  name: "todo",
+  tableName: "todo_list_tb",
+};
 
-await initIndexedDB();
-
-let list = await getAllTodoDB();
-
+/** @type {Database} */
+let database = null;
 let todoListEl = null;
 let todoEmptyListEl = null;
 
-const setTodoListCount = () => {
-  todoListCountEl.innerText = list.length;
-};
+const setTodoListCount = () =>
+  updateInnerText(todoListCountEl, getTodoList().length);
 
 const setCompletedTodoListCount = () => {
-  const completedTodoList = list.filter((todo) => todo.checked);
+  const completedTodoList = getTodoList().filter((todo) => todo.checked);
 
-  completedTodoListCountEl.innerText = completedTodoList.length;
+  updateInnerText(completedTodoListCountEl, completedTodoList.length);
 };
 
-const appendListEl = () => {
-  todoEl.append(createListEl());
+const appendTodoListEl = () => {
+  todoEl.append(createTodoListEl());
 
   todoListEl = document.querySelector(".todo__list");
 };
 
-const appendEmptyList = () => {
-  todoEl.append(createEmptyListEl());
+const appendEmptyTodoList = () => {
+  todoEl.append(createEmptyTodoListEl());
 
   todoEmptyListEl = document.querySelector(".todo__list-empty");
 };
 
-const addTodoItemToList = async () => {
+const addTodoItem = async () => {
   try {
-    const { value } = todoInput;
+    const { value } = todoInputEl;
 
-    const newTodo = createTodoObject(value, list.length);
+    const newTodo = createTodo(value, getTodoList().length);
 
-    await addTodoDB(newTodo, {
+    await database.add(newTodo, DATABASE.tableName, {
       onSuccess: () => {
-        todoInput.value = "";
+        todoInputEl.value = "";
 
-        list.push(newTodo);
+        addTodo(newTodo);
       },
       onError: () => {
         console.log("Error adding item to the database");
@@ -66,6 +74,7 @@ const addTodoItemToList = async () => {
     });
 
     renderTodo(newTodo);
+
     setTodoListCount();
   } catch (error) {
     console.error(error);
@@ -73,78 +82,72 @@ const addTodoItemToList = async () => {
 };
 
 const renderTodo = (todo) => {
-  const item = createTodoItemElement(todo, checkItem, deleteItem);
+  const item = createTodoItemEl(todo, checkTodoItem, deleteTodoItem);
   todoListEl.prepend(item);
 };
 
 const renderTodoList = () => {
-  for (const todo of list) {
+  for (const todo of getTodoList()) {
     renderTodo(todo);
   }
 };
 
-const addTodoItem = () => {
+const removeEmptyTodoListEl = () => {
+  removeEl(todoEmptyListEl);
+  todoEmptyListEl = null;
+};
+
+const removeTodoListEl = () => {
+  removeEl(todoListEl);
+  todoListEl = null;
+};
+
+const checkTodoListEmpty = () => {
+  if (isEmpty(getTodoList())) {
+    appendEmptyTodoList();
+
+    removeTodoListEl();
+  }
+};
+
+const checkTodoListFill = () => {
   if (todoEmptyListEl) {
-    todoEmptyListEl.remove();
-    todoEmptyListEl = null;
-
-    appendListEl();
-  }
-
-  addTodoItemToList();
-};
-
-const checkItem = async ($event) => {
-  try {
-    const { name: todoId, checked } = $event.target;
-
-    await updateTodoDB(
-      +todoId,
-      { checked },
-      {
-        onSuccess: () => {
-          const className = "todo__item-title--checked";
-          const titleEl =
-            $event.target.parentElement.parentElement.querySelector(
-              ".todo_item-title"
-            );
-          const index = list.findIndex((todo) => todo.id === +todoId);
-
-          list[index].checked = checked;
-
-          if (checked) {
-            titleEl.classList.add(className);
-          } else {
-            titleEl.classList.remove(className);
-          }
-
-          setCompletedTodoListCount();
-        },
-      }
-    );
-  } catch (error) {
-    console.error(error);
+    removeEmptyTodoListEl();
+    appendTodoListEl();
   }
 };
 
-const deleteItem = async ($event) => {
-  try {
-    const item = $event.target.parentElement.parentElement.parentElement;
-    const { name: todoId } = item.querySelector(".checkbox__input");
+const handleNewTodo = () => {
+  checkTodoListFill();
 
-    await deleteTodoDB(+todoId, {
+  addTodoItem();
+};
+
+const checkTodoItem = async (event) => {
+  try {
+    const { name: todoId, checked } = event.target;
+
+    await database.update(+todoId, { checked }, DATABASE.tableName, {
       onSuccess: () => {
-        const index = list.findIndex((todo) => todo.id === +todoId);
-        if (index !== -1) list.splice(index, 1);
+        const className = "todo__item-title--checked";
+        const titleEl =
+          event.target.parentElement.parentElement.querySelector(
+            ".todo_item-title"
+          );
 
-        item.remove();
+        const todo = getTodoList().find((todo) => todo.id === +todoId);
 
-        setTodoListCount();
-        setCompletedTodoListCount();
+        todo.checked = checked;
 
-        if (!list.length) {
-          appendEmptyList();
+        updateTodo(todo);
+
+        if (checked) {
+          titleEl.classList.add(className);
+        } else {
+          titleEl.classList.remove(className);
         }
+
+        setCompletedTodoListCount();
       },
     });
   } catch (error) {
@@ -152,18 +155,60 @@ const deleteItem = async ($event) => {
   }
 };
 
-if (!list.length) {
-  appendEmptyList();
-} else {
-  appendListEl();
-  renderTodoList();
-}
+const getTodo = (event) => {
+  const todoEl = event.target.parentElement.parentElement.parentElement;
+  const { name: todoId } = todoEl.querySelector(".checkbox__input");
 
-setTodoListCount();
-setCompletedTodoListCount();
+  return { todoEl, todoId: +todoId };
+};
 
-createTodoButton.addEventListener("click", addTodoItem);
+const deleteTodoItem = async (event) => {
+  try {
+    const { todoEl, todoId } = getTodo(event);
 
-todoInput.addEventListener("keydown", ($event) => {
-  if ($event.key === "Enter") addTodoItem();
-});
+    await database.delete(todoId, DATABASE.tableName, {
+      onSuccess: () => {
+        removeTodo(todoId);
+
+        removeEl(todoEl);
+
+        setTodoListCount();
+
+        setCompletedTodoListCount();
+
+        checkTodoListEmpty();
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const appInit = async () => {
+  database = new Database({ name: DATABASE.name, version: 1 });
+
+  await database.init();
+
+  await database.table({ name: DATABASE.tableName, indexBy: "id" });
+
+  const todoList = await database.getAll(DATABASE.tableName);
+
+  setTodoList(todoList);
+
+  if (isEmpty(getTodoList())) {
+    appendEmptyTodoList();
+  } else {
+    appendTodoListEl();
+    renderTodoList();
+  }
+
+  setTodoListCount();
+
+  setCompletedTodoListCount();
+
+  setNewTodoButtonClickEvent(handleNewTodo);
+
+  setNewTodoEnterKeyEvent(handleNewTodo);
+};
+
+appInit();
